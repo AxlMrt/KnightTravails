@@ -1,39 +1,40 @@
 // eslint-disable-next-line import/prefer-default-export
-export function createBoard() {
-  const chessBoard = document.getElementById('board');
+
+/** Create a Chess Board
+ * and add coordinate value to each cells
+ */
+function createBoard(boardName, size) {
+  const chessBoard = document.getElementById(boardName);
   const chessArray = [];
 
-  // eslint-disable-next-line no-empty, no-plusplus
-  for (let i = 0; i < 8; i++) {
-    const cellRow = Math.abs(i - 7);
-    // eslint-disable-next-line no-plusplus
-    for (let j = 0; j < 8; j++) {
+  for (let i = 0; i < size; i += 1) {
+    const cellRow = Math.abs(i - (size - 1));
+    for (let j = 0; j < size; j += 1) {
       const cell = document.createElement('div');
       const cellColumn = j;
       cell.classList.add('cell');
 
       if ((i + j) % 2 === 0) {
+        cell.style.background = 'white';
         cell.textContent = cellColumn; // To remove
-        chessArray.push(cellRow);
-        chessArray.push(cellColumn);
-        cell.dataset.chessArray = chessArray;
-        chessArray.splice(0, 2);
       } else {
         cell.style.background = 'black';
         cell.textContent = cellRow; // To remove
-        chessArray.push(cellRow);
-        chessArray.push(cellColumn);
-        cell.dataset.chessArray = chessArray;
-        chessArray.splice(0, 2);
       }
-
+      chessArray.push(cellRow);
+      chessArray.push(cellColumn);
+      cell.dataset.chessArray = chessArray;
+      chessArray.splice(0, 2);
       chessBoard.appendChild(cell);
     }
   }
 }
 
-export function createKnight() {
-  const defaultCoordinate = [0, 0];
+/** Take coordinate value of board
+ * and add a Travail Knight
+ */
+function createKnight(x, y) {
+  const defaultCoordinate = [x, y];
   const cellNodes = document.querySelectorAll('.cell');
 
   cellNodes.forEach((node) => {
@@ -45,3 +46,5 @@ export function createKnight() {
     }
   });
 }
+
+export { createBoard, createKnight };
