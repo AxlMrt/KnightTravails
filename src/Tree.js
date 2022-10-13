@@ -1,32 +1,75 @@
-// This const is given by Odin Project
-const prettyPrint = (node, prefix = '', isLeft = true) => {
-  if (node.right !== null) {
-    prettyPrint(node.right, `${prefix}${isLeft ? '│   ' : '    '}`, false);
+const moveRegistry = new Map();
+
+function stepToTarget(x, y) {
+  const knightMoves = [
+    [1, 2], [1, -2],
+    [2, 1], [2, -1],
+    [-1, 2], [-1, -2],
+    [-2, 1], [-2, -1],
+  ];
+
+  const positionX = x;
+  const positionY = y;
+
+  let lastMove;
+
+  const getLastMove = () => lastMove;
+  const setLastMove = (newLastMove) => {
+    lastMove = lastMove || newLastMove;
+  };
+
+  const showMove = () => `${x}, ${y}`;
+
+  const newCells = (offsetX, offsetY) => {
+    const [newX, newY] = [positionX + offsetX, positionY + offsetY];
+    if (newX >= 0 && newX < 8 && newY >= 0 && y < 8) {
+      return stepToTarget(newX, newY);
+    }
+    return stepToTarget(newX, newY);
+  };
+
+  const possibleKnightMoves = () => knightMoves
+    .map((offset) => newCells(offset[0], offset[1]))
+    .filter((cell) => cell !== undefined);
+
+  if (moveRegistry.has(showMove())) {
+    return moveRegistry.get(showMove());
   }
-  console.log(`${prefix}${isLeft ? '└── ' : '┌── '}${node.data}`);
-  if (node.left !== null) {
-    prettyPrint(node.left, `${prefix}${isLeft ? '    ' : '│   '}`, true);
+
+  const newMove = {
+    showMove, getLastMove, setLastMove, possibleKnightMoves,
+  };
+  moveRegistry.set(showMove(), newMove);
+  return newMove;
+}
+
+function knightTravail(start, finish) {
+  moveRegistry.clear();
+
+  const origin = stepToTarget(...start);
+  const target = stepToTarget(...finish);
+
+  const queue = [origin];
+  while (!queue.includes(target)) {
+    const currentCell = queue.shift();
+    const enqueueList = currentCell.possibleKnightMoves();
+
+    enqueueList.forEach((cell) => cell.setLastMove(currentCell));
+    queue.push(...enqueueList);
   }
-};
 
-const Node = (data) => {
-  this.data = data;
-  this.left = null;
-  this.right = null;
-};
+  const path = [target];
 
-const Tree = (array) => {
-  this.root = buildTree(array, 0, array.length - 1);
-  prettyPrint(this.root);
-};
+  while (!path.includes(origin)) {
+    const prevCell = path[0].getLastMove();
+    path.unshift(prevCell);
+  }
 
-const buildTree = (arr, start, end) => {
-  if (start > end) return null;
+  console.log(`The shortest path was ${path.length - 1} moves!`);
+  console.log('The moves were: ');
 
-  const mid = parseInt((start + end) / 2);
-  const node = new Node(arr[mid]);
+  path.forEach((cell) => console.log(cell.showMove()));
+}
 
-  node.left = buildTree(arr, start, mid - 1);
-  node.right = buildTree(arr, mid + 1, end);
-  return node;
-};
+// eslint-disable-next-line import/prefer-default-export
+export { knightTravail };
